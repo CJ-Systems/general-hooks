@@ -1,5 +1,14 @@
 CHANGELOG_FILE=CHANGELOG.md
 
+# Create an authors file
+CREATE_AUTHORS_FILE=${TRUE}
+# Name of the authors file
+AUTHORS_FILE=AUTHORS
+# Header for the authors file
+AUTHORS_HEADER=""
+# Footer for the authors file
+AUTHORS_FOOTER=""
+
 # Generally good prefixes for development and releases
 AVH_PRE_RELEASE_PREFIX_DEV="-dev."
 AVH_PRE_RELEASE_PREFIX_RC="-rc."

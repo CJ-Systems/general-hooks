@@ -15,6 +15,11 @@ GREY=`printf '\033[1;36m'`
 CHECK=`printf ${GREEN}'✔'${WHITE}`
 CROSS=`printf ${RED}'✘'${WHITE}`
 
+# General Variables
+TRUE=0
+FALSE=1
+ERROR=2
+
 # Modules directory
 HOOKS_MODULES_DIR="$HOOKS_DIR"/modules
 
@@ -109,24 +114,28 @@ gitflow_get_stable_version() {
 # Create an up to date AUTHORS file
 #
 gitflow_update_authors() {
-	ROOTDIR=$(git rev-parse --show-toplevel)
-	AUTHORS=$(mktemp --suffix=.gitflow)
+	[ -z $CREATE_AUTHORS_FILE ] && CREATE_AUTHORS_FILE=${TRUE}
+	if (hooks_check_boolean ${CREATE_AUTHORS_FILE}); then do
+		[ -z AUTHORS_FILE ] && AUTHORS_FILE=AUTHORS
+		ROOTDIR=$(git rev-parse --show-toplevel)
+		AUTHORS=$(mktemp --suffix=.gitflow)
 
-	# Create an up to date AUTHORS file
-	echo "$AUTHORS_HEADER" > $AUTHORS
-	git shortlog -ns --no-merges | cut -f2 >> $AUTHORS
-	echo "$AUTHORS_FOOTER" >> $AUTHORS
+		# Create an up to date AUTHORS file
+		echo "$AUTHORS_HEADER" > $AUTHORS
+		git shortlog -ns --no-merges | cut -f2 >> $AUTHORS
+		echo "$AUTHORS_FOOTER" >> $AUTHORS
 
-	# Check if the new file is different
-	# If it's not there is no need to copy it and commit
-	diff $AUTHORS $ROOTDIR/AUTHORS > /dev/null 2>&1
-	DIFF=$?
-	if [ $DIFF -ne 0 ]; then
-		cp $AUTHORS $ROOTDIR/AUTHORS
-		git commit AUTHORS -m "Update of the contributers."
-	fi
-	# Clean up
-	rm  $AUTHORS
+		# Check if the new file is different
+		# If it's not, there is no need to copy it and commit
+		diff $AUTHORS $ROOTDIR/${AUTHORS_FILE} > /dev/null 2>&1
+		DIFF=$?
+		if [ $DIFF -ne 0 ]; then
+			cp $AUTHORS $ROOTDIR/${AUTHORS_FILE}
+			git commit AUTHORS -m "Update of the contributers."
+			fi
+		# Clean up
+		rm  $AUTHORS
+	done
 }
 
 
@@ -181,4 +190,22 @@ gitflow_commit_files() {
 
 gitflow_count_commit_files() {
 	echo $(gitflow_commit_files $@) | wc -w | tr -d ' '
+}
+
+hooks_check_boolean() {
+	local _return _value
+ 	_value="${1}"
+	case "${_value}" in
+	${TRUE} | [yY] | [yY][eE][sS] | [tT] | [tT][rR][uU][eE])
+		_return=${TRUE}
+		;;
+	${FALSE} | [nN] | [nN][oO] | [fF] | [fF][aA][lL][sS][eE])
+		_return=${FALSE}
+		;;
+	*)
+		_return=${ERROR}
+		;;
+	esac
+	unset _value
+	return ${_return}
 }
