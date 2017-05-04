@@ -115,7 +115,7 @@ gitflow_get_stable_version() {
 #
 gitflow_update_authors() {
 	[ -z $CREATE_AUTHORS_FILE ] && CREATE_AUTHORS_FILE=${TRUE}
-	if (hooks_check_boolean ${CREATE_AUTHORS_FILE}); then do
+	if (hooks_check_boolean ${CREATE_AUTHORS_FILE}); then
 		[ -z AUTHORS_FILE ] && AUTHORS_FILE=AUTHORS
 		ROOTDIR=$(git rev-parse --show-toplevel)
 		AUTHORS=$(mktemp --suffix=.gitflow)
@@ -135,7 +135,7 @@ gitflow_update_authors() {
 			fi
 		# Clean up
 		rm  $AUTHORS
-	done
+	fi
 }
 
 
